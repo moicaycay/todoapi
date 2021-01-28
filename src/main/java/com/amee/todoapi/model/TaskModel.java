@@ -1,12 +1,11 @@
 package com.amee.todoapi.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 
 @Entity
@@ -19,13 +18,20 @@ public class TaskModel {
     private Integer id;
 
     @Column(name = "work_name")
+    @NotBlank(message = "Work name is not blank")
     private String workName;
 
     @Column(name = "starting_date")
-    private LocalDate startingDate;
+    @NotNull(message = "Start Date not Empty")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @Temporal(TemporalType.DATE)
+    private Date startingDate;
 
     @Column(name = "ending_date")
-    private LocalDate endingDate;
+    @NotNull(message = "Start Date not Empty")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @Temporal(TemporalType.DATE)
+    private Date endingDate;
 
     @Column(name = "status")
     private String status;
@@ -46,19 +52,19 @@ public class TaskModel {
         this.workName = workName;
     }
 
-    public LocalDate getStartingDate() {
+    public Date getStartingDate() {
         return startingDate;
     }
 
-    public void setStartingDate(LocalDate startingDate) {
+    public void setStartingDate(Date startingDate) {
         this.startingDate = startingDate;
     }
 
-    public LocalDate getEndingDate() {
+    public Date getEndingDate() {
         return endingDate;
     }
 
-    public void setEndingDate(LocalDate endingDate) {
+    public void setEndingDate(Date endingDate) {
         this.endingDate = endingDate;
     }
 

@@ -1,9 +1,13 @@
 package com.amee.todoapi.service.impl;
 
+import com.amee.todoapi.model.BaseResponse;
 import com.amee.todoapi.model.TaskModel;
 import com.amee.todoapi.repository.TaskRepository;
 import com.amee.todoapi.service.TaskService;
+import com.amee.todoapi.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +19,8 @@ public class TaskServiceImpl implements TaskService {
     private TaskRepository taskRepository;
 
     @Override
-    public List<TaskModel> getAllTask() {
-        return this.taskRepository.findAll();
+    public List<TaskModel> getAllTask(Pageable pageable) {
+        return this.taskRepository.findAll(pageable).getContent();
     }
 
     @Override
@@ -25,22 +29,47 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskModel insertTask(TaskModel task) {
-        return this.taskRepository.save(task);
+    public BaseResponse insertTask(TaskModel tasks) {
+         this.taskRepository.save(tasks);
+         BaseResponse response = new BaseResponse();
+         response.setCode(Constants.SUCCESS_CODE);
+         response.setStatus(HttpStatus.OK);
+         response.setMessage("Create new task success!");
+         return response;
     }
 
     @Override
-    public TaskModel updateTask(TaskModel task) {
-        final Integer id = task.getId();
+    public BaseResponse updateTask(TaskModel task) {
 
-        TaskModel savedTask = this.taskRepository.getOne(id);
-        task.setId(savedTask.getId());
-        savedTask = taskRepository.save(task);
-        return savedTask;
+        BaseResponse response = new BaseResponse();
+        final int id = task.getId();
+        if(!this.taskRepository.existsById(id)) {
+            response.setCode(Constants.ERROR_CODE);
+            response.setStatus(HttpStatus.BAD_REQUEST);
+            response.setMessage("Task not found");
+            return response;
+        }
+
+        this.taskRepository.save(task);
+        response.setCode(Constants.ERROR_CODE);
+        response.setStatus(HttpStatus.BAD_REQUEST);
+        response.setMessage("Update task id " + task.getId() + " success!");
+        return response;
     }
 
     @Override
-    public void deleteTask(TaskModel task) {
-        this.taskRepository.delete(task);
+    public BaseResponse deleteTask(int id) {
+        BaseResponse response = new BaseResponse();
+        if(this.taskRepository.existsById(id)) {
+            this.taskRepository.delete(this.taskRepository.getOne(id));
+            response.setCode(Constants.SUCCESS_CODE);
+            response.setStatus(HttpStatus.OK);
+            response.setMessage("Delete task id " + id +" success");
+        } else {
+            response.setCode(Constants.ERROR_CODE);
+            response.setStatus(HttpStatus.BAD_REQUEST);
+            response.setMessage("Task not found");
+        }
+        return response;
     }
 }
